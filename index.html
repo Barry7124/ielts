@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>雅思学习系统</title>
+<style>
+  :root {
+    --navy: #1F3864;
+    --blue: #2E75B6;
+    --light-blue: #D6E4F0;
+    --accent: #F4B942;
+    --green: #70AD47;
+    --red: #C00000;
+    --warn: #FFC000;
+    --bg: #F5F7FA;
+    --card: #FFFFFF;
+    --border: #E0E6ED;
+    --text: #2C3E50;
+    --muted: #7F8C8D;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .app-header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+    color: white;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  }
+  .app-header h1 { font-size: 22px; font-weight: 700; letter-spacing: 1px; }
+  .app-header .subtitle { font-size: 13px; opacity: 0.8; margin-top: 2px; }
+
+  /* ── Nav tabs ── */
+  .nav-tabs {
+    background: var(--navy);
+    display: flex;
+    padding: 0 24px;
+    gap: 4px;
+  }
+  .nav-tab {
+    padding: 12px 20px;
+    color: rgba(255,255,255,0.65);
+    cursor: pointer;
+    font-size: 14px;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .nav-tab:hover { color: white; }
+  .nav-tab.active {
+    color: white;
+    border-bottom-color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ── Main layout ── */
+  .main { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--light-blue);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ── Form elements ── */
+  .form-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; align-items: flex-end; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group label { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  select, input[type="text"], input[type="number"] {
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: 14px;
+    color: var(--text);
+    background: white;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  select:focus, input:focus { border-color: var(--blue); }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: var(--blue); color: white; }
+  .btn-primary:hover { background: var(--navy); transform: translateY(-1px); }
+  .btn-danger { background: #FDECEA; color: var(--red); }
+  .btn-danger:hover { background: #F8D7D3; }
+  .btn-success { background: #EBF5E1; color: #4A7C2F; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+  /* ── Answer table ── */
+  .answer-grid {
+    display: grid;
+    grid-template-columns: 60px 1fr 1fr 70px 160px 1fr;
+    gap: 0;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 13px;
+  }
+  .answer-grid .grid-header {
+    background: var(--navy);
+    color: white;
+    padding: 10px 12px;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .answer-grid .grid-cell {
+    padding: 6px 8px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+  }
+  .answer-grid .grid-cell:nth-child(12n+7),
+  .answer-grid .grid-cell:nth-child(12n+8),
+  .answer-grid .grid-cell:nth-child(12n+9),
+  .answer-grid .grid-cell:nth-child(12n+10),
+  .answer-grid .grid-cell:nth-child(12n+11),
+  .answer-grid .grid-cell:nth-child(12n+12) {
+    background: #FAFBFD;
+  }
+  .answer-grid input, .answer-grid select {
+    width: 100%; border: none; padding: 4px 6px;
+    background: transparent; font-size: 13px;
+    border-radius: 4px;
+  }
+  .answer-grid input:focus, .answer-grid select:focus {
+    background: var(--light-blue); outline: none;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .badge-correct { background: #E8F5E9; color: #2E7D32; }
+  .badge-wrong { background: #FDECEA; color: var(--red); }
+  .badge-empty { color: var(--muted); }
+
+  /* ── Stats grid ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+  .stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 18px;
+    text-align: center;
+    border: 1.5px solid var(--border);
+  }
+  .stat-card .stat-val { font-size: 28px; font-weight: 800; color: var(--navy); }
+  .stat-card .stat-lbl { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* ── Error breakdown ── */
+  .error-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .error-bar-label { width: 80px; font-size: 13px; text-align: right; color: var(--text); flex-shrink: 0; }
+  .error-bar-track { flex: 1; background: var(--border); border-radius: 6px; height: 18px; overflow: hidden; }
+  .error-bar-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--accent)); border-radius: 6px; transition: width 0.5s; min-width: 2px; }
+  .error-bar-count { width: 30px; font-size: 13px; font-weight: 700; color: var(--navy); }
+
+  /* ── Weekly review ── */
+  .score-input-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .score-box {
+    background: #FAFBFD;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+  .score-box label { font-size: 12px; color: var(--muted); font-weight: 600; display: block; margin-bottom: 8px; }
+  .score-box input { width: 80px; text-align: center; font-size: 20px; font-weight: 700; color: var(--navy); border: none; background: transparent; outline: none; }
+  .score-box .score-target { font-size: 11px; color: var(--green); margin-top: 4px; }
+
+  /* ── Plan table ── */
+  .plan-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .plan-table th { background: var(--navy); color: white; padding: 10px 12px; text-align: center; font-weight: 600; }
+  .plan-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .plan-table tr:nth-child(even) td { background: #FAFBFD; }
+  .plan-table .subject-cell { font-weight: 700; color: var(--blue); white-space: nowrap; }
+  .week-badge {
+    display: inline-block;
+    background: var(--light-blue);
+    color: var(--navy);
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  /* ── Alert box ── */
+  .alert { padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-bottom: 14px; }
+  .alert-warn { background: #FFF8E1; border-left: 4px solid var(--warn); color: #7B5800; }
+  .alert-success { background: #E8F5E9; border-left: 4px solid var(--green); color: #2E7D32; }
+  .alert-info { background: var(--light-blue); border-left: 4px solid var(--blue); color: var(--navy); }
+
+  /* ── Page visibility ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── Progress bar ── */
+  .progress-wrap { background: var(--border); border-radius: 8px; height: 10px; overflow: hidden; margin: 6px 0; }
+  .progress-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, var(--blue), var(--green)); transition: width 0.4s; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 700px) {
+    .two-col { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .score-input-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin: 1px; }
+  .tag-listening { background: #E3F2FD; color: #1565C0; }
+  .tag-reading { background: #E8F5E9; color: #2E7D32; }
+
+  .empty-state { text-align: center; color: var(--muted); padding: 40px; font-size: 14px; }
+  .empty-state .empty-icon { font-size: 40px; margin-bottom: 10px; }
+
+  /* history list */
+  .history-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; border-radius: 8px; margin-bottom: 8px;
+    background: #FAFBFD; border: 1px solid var(--border);
+  }
+  .history-item:hover { border-color: var(--blue); }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div style="font-size:32px">🎯</div>
+  <div>
+    <h1>雅思学习系统</h1>
+    <div class="subtitle">错题分析 · 备考计划 · 周复盘</div>
+  </div>
+  <div style="margin-left:auto; font-size:13px; opacity:0.7" id="headerScore"></div>
+</div>
+
+<div class="nav-tabs">
+  <div class="nav-tab active" onclick="showPage('page-input')">✍️ 答题记录</div>
+  <div class="nav-tab" onclick="showPage('page-analysis')">📊 错题分析</div>
+  <div class="nav-tab" onclick="showPage('page-plan')">📅 学习计划</div>
+  <div class="nav-tab" onclick="showPage('page-review')">📈 周复盘</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ PAGE 1 ══ -->
+<div id="page-input" class="page active">
+<div class="main">
+
+  <div class="card">
+    <div class="card-title">✍️ 新增答题记录</div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>试卷</label>
+        <select id="sel-test">
+          <option value="">-- 选择试卷 --</option>
+          <option>剑桥16 Test1</option><option>剑桥16 Test2</option>
+          <option>剑桥16 Test3</option><option>剑桥16 Test4</option>
+          <option>剑桥17 Test1</option><option>剑桥17 Test2</option>
+          <option>剑桥17 Test3</option><option>剑桥17 Test4</option>
+          <option>剑桥18 Test1</option><option>剑桥18 Test2</option>
+          <option>剑桥18 Test3</option><option>剑桥18 Test4</option>
+          <option>剑桥19 Test1</option><option>剑桥19 Test2</option>
+          <option>剑桥19 Test3</option><option>剑桥19 Test4</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>模块</label>
+        <select id="sel-module">
+          <option value="">-- 选择模块 --</option>
+          <option>听力</option><option>阅读</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>题目数量</label>
+        <select id="sel-count">
+          <option value="40">40题（标准）</option>
+          <option value="20">20题（半套）</option>
+          <option value="10">10题（专项）</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="generateInputRows()">生成答题表格</button>
+    </div>
+
+    <div id="answer-input-area"></div>
+    <div id="submit-area" style="display:none; margin-top:16px">
+      <button class="btn btn-primary" onclick="submitAnswers()">✅ 提交并分析错题</button>
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="card">
+    <div class="card-title">📋 历史记录</div>
+    <div id="history-list"><div class="empty-state"><div class="empty-icon">📭</div>暂无记录，先做一套题吧！</div></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ PAGE 2 ══ -->
+<div id="page-analysis" class="page">
+<div class="main">
+
+  <div class="stats-grid" id="stats-grid">
+    <div class="stat-card"><div class="stat-val" id="st-total">0</div><div class="stat-lbl">总做题数</div></div>
+    <div class="stat-card"><div class="stat-val" id="st-correct" style="color:var(--green)">0</div><div class="stat-lbl">总正确数</div></div>
+    <div class="stat-card"><div class="stat-val" id="st-wrong" style="color:var(--red)">0</div><div class="stat-lbl">总错误数</div></div>
+    <div class="stat-card"><div class="stat-val" id="st-rate">—</div><div class="stat-lbl">整体正确率</div></div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">⚠️ 错误类型分布</div>
+      <div id="error-type-chart"><div class="empty-state"><div class="empty-icon">📊</div>提交答题记录后显示</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📚 各套题正确率</div>
+      <div id="per-test-chart"><div class="empty-state"><div class="empty-icon">📈</div>提交答题记录后显示</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔍 所有错题明细</div>
+    <div id="wrong-list"><div class="empty-state"><div class="empty-icon">✅</div>暂无错题记录</div></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ PAGE 3 ══ -->
+<div id="page-plan" class="page">
+<div class="main">
+
+  <div class="card">
+    <div class="card-title">🎯 备考目标</div>
+    <div style="display:flex; gap:20px; flex-wrap:wrap">
+      <div class="stat-card" style="flex:1; min-width:120px">
+        <div class="stat-lbl">当前成绩</div>
+        <div style="font-size:14px; margin-top:8px; line-height:2">
+          听力 <b>5.5</b> &nbsp; 阅读 <b>6.0</b><br>
+          写作 <b>6.5</b> &nbsp; 口语 <b>5.0</b>
+        </div>
+        <div style="margin-top:8px; font-size:20px; font-weight:800; color:var(--navy)">Overall 6.0</div>
+      </div>
+      <div style="display:flex; align-items:center; font-size:28px; color:var(--muted)">→</div>
+      <div class="stat-card" style="flex:1; min-width:120px; border-color:var(--green)">
+        <div class="stat-lbl">目标成绩</div>
+        <div style="font-size:14px; margin-top:8px; line-height:2; color:var(--green)">
+          听力 <b>7.0</b> &nbsp; 阅读 <b>7.0</b><br>
+          写作 <b>6.5</b> &nbsp; 口语 <b>6.5</b>
+        </div>
+        <div style="margin-top:8px; font-size:20px; font-weight:800; color:var(--green)">Overall 7.0</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="plan-weeks"></div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ PAGE 4 ══ -->
+<div id="page-review" class="page">
+<div class="main">
+
+  <div class="card">
+    <div class="card-title">📈 本周模考成绩</div>
+    <div id="week-selector" style="margin-bottom:16px">
+      <div class="form-row">
+        <div class="form-group">
+          <label>选择周次</label>
+          <select id="sel-week" onchange="loadWeekData()">
+            <option value="1">第1周</option><option value="2">第2周</option>
+            <option value="3">第3周</option><option value="4">第4周</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="score-input-grid">
+      <div class="score-box">
+        <label>🎧 听力 L</label>
+        <input type="number" id="score-l" min="0" max="9" step="0.5" placeholder="—" oninput="calcOverall()">
+        <div class="score-target">目标：7.0</div>
+      </div>
+      <div class="score-box">
+        <label>📖 阅读 R</label>
+        <input type="number" id="score-r" min="0" max="9" step="0.5" placeholder="—" oninput="calcOverall()">
+        <div class="score-target">目标：7.0</div>
+      </div>
+      <div class="score-box">
+        <label>✍️ 写作 W</label>
+        <input type="number" id="score-w" min="0" max="9" step="0.5" placeholder="—" oninput="calcOverall()">
+        <div class="score-target">目标：6.5</div>
+      </div>
+      <div class="score-box">
+        <label>🗣️ 口语 S</label>
+        <input type="number" id="score-s" min="0" max="9" step="0.5" placeholder="—" oninput="calcOverall()">
+        <div class="score-target">目标：6.5</div>
+      </div>
+    </div>
+
+    <div id="overall-display" style="text-align:center; margin:10px 0"></div>
+
+    <div class="form-row" style="margin-top:10px">
+      <div class="form-group" style="flex:1">
+        <label>本周学习完成率 %</label>
+        <input type="number" id="completion-rate" min="0" max="100" placeholder="e.g. 70">
+      </div>
+      <div class="form-group" style="flex:2">
+        <label>本周总结（可选）</label>
+        <input type="text" id="week-note" placeholder="记录本周遇到的问题...">
+      </div>
+      <button class="btn btn-primary" onclick="saveWeekData()" style="align-self:flex-end">保存</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📊 学习进度总览</div>
+    <div id="review-summary"><div class="empty-state"><div class="empty-icon">📋</div>保存周复盘后显示进度</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">💡 调整建议</div>
+    <div id="adjustment-advice"><div class="empty-state"><div class="empty-icon">🤔</div>填写成绩后自动生成建议</div></div>
+  </div>
+
+</div>
+</div>
+
+<script>
+// ── Data store (localStorage) ──────────────────────────────────────────────
+const DB = {
+  get: k => { try { return JSON.parse(localStorage.getItem(k)) || []; } catch { return []; } },
+  set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
+};
+
+const ERROR_TYPES = ["拼写错误","数字混淆","未听到","词汇不认识","定位错误","理解偏差","审题错误","时间不够","其他"];
+
+// ── Page routing ────────────────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'page-analysis') refreshAnalysis();
+  if (id === 'page-review')   refreshReview();
+  if (id === 'page-plan')     renderPlan();
+}
+
+// ── PAGE 1: Answer input ────────────────────────────────────────────────────
+function generateInputRows() {
+  const test   = document.getElementById('sel-test').value;
+  const module = document.getElementById('sel-module').value;
+  const count  = parseInt(document.getElementById('sel-count').value);
+  if (!test || !module) { alert('请先选择试卷和模块'); return; }
+
+  let html = `
+    <div class="alert alert-info">📌 <b>${test} · ${module}</b> — 填写你的答案，然后点击"提交"</div>
+    <div class="answer-grid">
+      <div class="grid-header">题号</div>
+      <div class="grid-header">我的答案</div>
+      <div class="grid-header">正确答案</div>
+      <div class="grid-header">对错</div>
+      <div class="grid-header">错误类型</div>
+      <div class="grid-header">备注</div>`;
+
+  for (let i = 1; i <= count; i++) {
+    html += `
+      <div class="grid-cell" style="justify-content:center; font-weight:700; color:var(--muted)">${i}</div>
+      <div class="grid-cell"><input type="text" id="my-${i}" placeholder="填写" oninput="checkAnswer(${i})"></div>
+      <div class="grid-cell"><input type="text" id="ans-${i}" placeholder="填写" oninput="checkAnswer(${i})"></div>
+      <div class="grid-cell" style="justify-content:center" id="result-${i}"><span class="badge badge-empty">—</span></div>
+      <div class="grid-cell" id="err-cell-${i}" style="display:none">
+        <select id="err-${i}" style="width:100%">
+          <option value="">选择类型</option>
+          ${ERROR_TYPES.map(t=>`<option>${t}</option>`).join('')}
+        </select>
+      </div>
+      <div class="grid-cell" id="err-placeholder-${i}"><span style="color:var(--muted); font-size:12px">答对时不需要填</span></div>
+      <div class="grid-cell"><input type="text" id="note-${i}" placeholder="可选备注"></div>`;
+  }
+  html += '</div>';
+
+  document.getElementById('answer-input-area').innerHTML = html;
+  document.getElementById('submit-area').style.display = 'block';
+  // Store temp metadata
+  window._currentTest = test;
+  window._currentModule = module;
+  window._currentCount = count;
+}
+
+function checkAnswer(i) {
+  const my  = document.getElementById(`my-${i}`).value.trim().toUpperCase();
+  const ans = document.getElementById(`ans-${i}`).value.trim().toUpperCase();
+  const res = document.getElementById(`result-${i}`);
+  const errCell = document.getElementById(`err-cell-${i}`);
+  const errPlaceholder = document.getElementById(`err-placeholder-${i}`);
+
+  if (!my || !ans) {
+    res.innerHTML = '<span class="badge badge-empty">—</span>';
+    errCell.style.display = 'none';
+    errPlaceholder.style.display = 'flex';
+    return;
+  }
+  if (my === ans) {
+    res.innerHTML = '<span class="badge badge-correct">✓</span>';
+    errCell.style.display = 'none';
+    errPlaceholder.style.display = 'flex';
+  } else {
+    res.innerHTML = '<span class="badge badge-wrong">✗</span>';
+    errCell.style.display = 'flex';
+    errPlaceholder.style.display = 'none';
+  }
+}
+
+function submitAnswers() {
+  const test   = window._currentTest;
+  const module = window._currentModule;
+  const count  = window._currentCount;
+  const records = DB.get('records');
+  const now = new Date().toLocaleDateString('zh-CN');
+
+  let correct = 0, wrong = 0;
+  const wrongItems = [];
+
+  for (let i = 1; i <= count; i++) {
+    const my  = document.getElementById(`my-${i}`)?.value.trim();
+    const ans = document.getElementById(`ans-${i}`)?.value.trim();
+    if (!my || !ans) continue;
+
+    const isCorrect = my.toUpperCase() === ans.toUpperCase();
+    if (isCorrect) { correct++; }
+    else {
+      wrong++;
+      wrongItems.push({
+        qNum: i,
+        myAnswer: my,
+        correct: ans,
+        errType: document.getElementById(`err-${i}`)?.value || '其他',
+        note: document.getElementById(`note-${i}`)?.value || '',
+      });
+    }
+  }
+
+  const entry = { id: Date.now(), test, module, date: now, correct, wrong, total: correct+wrong, wrongItems };
+  records.push(entry);
+  DB.set('records', records);
+
+  // Show feedback
+  const rate = ((correct/(correct+wrong))*100).toFixed(1);
+  document.getElementById('answer-input-area').innerHTML = `
+    <div class="alert ${wrong===0?'alert-success':'alert-warn'}">
+      <b>✅ 提交成功！</b> ${test} · ${module} —
+      正确 <b>${correct}</b> 题 / 错误 <b>${wrong}</b> 题 / 正确率 <b>${rate}%</b>
+      <br><small>已保存到错题分析，可切换到"📊 错题分析"查看详情</small>
+    </div>`;
+  document.getElementById('submit-area').style.display = 'none';
+  renderHistory();
+}
+
+function renderHistory() {
+  const records = DB.get('records');
+  const el = document.getElementById('history-list');
+  if (!records.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div>暂无记录</div>';
+    return;
+  }
+  el.innerHTML = records.slice().reverse().map(r => {
+    const rate = r.total ? ((r.correct/r.total)*100).toFixed(0) : 0;
+    const color = rate >= 80 ? 'var(--green)' : rate >= 60 ? 'var(--warn)' : 'var(--red)';
+    return `<div class="history-item">
+      <div>
+        <span class="tag tag-${r.module==='听力'?'listening':'reading'}">${r.module}</span>
+        <b style="margin-left:8px">${r.test}</b>
+        <span style="color:var(--muted); font-size:12px; margin-left:8px">${r.date}</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px">
+        <span>做题 <b>${r.total}</b> 题</span>
+        <span>正确率 <b style="color:${color}">${rate}%</b></span>
+        <span style="color:var(--red)">错 ${r.wrong} 题</span>
+        <button class="btn btn-danger btn-sm" onclick="deleteRecord(${r.id})">删除</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteRecord(id) {
+  if (!confirm('确定删除这条记录？')) return;
+  DB.set('records', DB.get('records').filter(r => r.id !== id));
+  renderHistory();
+  refreshAnalysis();
+}
+
+// ── PAGE 2: Analysis ─────────────────────────────────────────────────────────
+function refreshAnalysis() {
+  const records = DB.get('records');
+  let total=0, correct=0, wrong=0;
+  const errTypeCount = {};
+  const testStats = {};
+  const wrongAll = [];
+
+  ERROR_TYPES.forEach(t => errTypeCount[t] = 0);
+
+  records.forEach(r => {
+    total   += r.total;
+    correct += r.correct;
+    wrong   += r.wrong;
+    if (!testStats[r.test]) testStats[r.test] = {total:0, correct:0};
+    testStats[r.test].total   += r.total;
+    testStats[r.test].correct += r.correct;
+    r.wrongItems.forEach(w => {
+      if (w.errType && errTypeCount[w.errType] !== undefined) errTypeCount[w.errType]++;
+      wrongAll.push({...w, test: r.test, module: r.module});
+    });
+  });
+
+  document.getElementById('st-total').textContent   = total;
+  document.getElementById('st-correct').textContent = correct;
+  document.getElementById('st-wrong').textContent   = wrong;
+  document.getElementById('st-rate').textContent    = total ? (correct/total*100).toFixed(1)+'%' : '—';
+
+  // Error type chart
+  const maxErr = Math.max(...Object.values(errTypeCount), 1);
+  const errEl = document.getElementById('error-type-chart');
+  if (wrong === 0) {
+    errEl.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div>暂无错题</div>';
+  } else {
+    errEl.innerHTML = ERROR_TYPES.filter(t => errTypeCount[t] > 0)
+      .sort((a,b) => errTypeCount[b]-errTypeCount[a])
+      .map(t => `
+        <div class="error-bar-row">
+          <div class="error-bar-label">${t}</div>
+          <div class="error-bar-track">
+            <div class="error-bar-fill" style="width:${(errTypeCount[t]/maxErr*100)}%"></div>
+          </div>
+          <div class="error-bar-count">${errTypeCount[t]}</div>
+        </div>`).join('') || '<div class="empty-state">暂无分类错题</div>';
+  }
+
+  // Per-test chart
+  const testEl = document.getElementById('per-test-chart');
+  const testKeys = Object.keys(testStats);
+  if (!testKeys.length) {
+    testEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📈</div>暂无数据</div>';
+  } else {
+    testEl.innerHTML = testKeys.map(t => {
+      const s = testStats[t];
+      const pct = s.total ? (s.correct/s.total*100) : 0;
+      const color = pct>=80?'var(--green)':pct>=60?'var(--warn)':'var(--red)';
+      return `<div style="margin-bottom:12px">
+        <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px">
+          <span>${t}</span>
+          <span style="font-weight:700; color:${color}">${pct.toFixed(0)}%</span>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-fill" style="width:${pct}%; background:${color}"></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Wrong list
+  const wlEl = document.getElementById('wrong-list');
+  if (!wrongAll.length) {
+    wlEl.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div>暂无错题</div>';
+  } else {
+    wlEl.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="background:var(--navy);color:white">
+        <th style="padding:8px 12px">试卷</th><th style="padding:8px 12px">模块</th>
+        <th style="padding:8px 12px">题号</th><th style="padding:8px 12px">我的答案</th>
+        <th style="padding:8px 12px">正确答案</th><th style="padding:8px 12px">错误类型</th>
+        <th style="padding:8px 12px">备注</th>
+      </tr></thead><tbody>` +
+      wrongAll.map((w,i) => `<tr style="background:${i%2?'#FAFBFD':'white'}">
+        <td style="padding:7px 12px">${w.test}</td>
+        <td style="padding:7px 12px"><span class="tag tag-${w.module==='听力'?'listening':'reading'}">${w.module}</span></td>
+        <td style="padding:7px 12px; text-align:center; font-weight:700">${w.qNum}</td>
+        <td style="padding:7px 12px; color:var(--red); font-weight:600">${w.myAnswer}</td>
+        <td style="padding:7px 12px; color:var(--green); font-weight:600">${w.correct}</td>
+        <td style="padding:7px 12px">${w.errType||'—'}</td>
+        <td style="padding:7px 12px; color:var(--muted)">${w.note||'—'}</td>
+      </tr>`).join('') + '</tbody></table>';
+  }
+}
+
+// ── PAGE 3: Study plan ───────────────────────────────────────────────────────
+const PLAN_DATA = [
+  { week: '第1周：打基础', tasks: [
+    { subject:'🎧 听力', mon:'精听30min',  tue:'精听30min',  wed:'精听练习',  thu:'精听30min', fri:'精听30min', sat:'专项练习', sun:'模考', note:'精听剑桥16全部听力文本' },
+    { subject:'📖 阅读', mon:'精读1篇',   tue:'精读1篇',   wed:'限时阅读',  thu:'精读1篇',  fri:'精读1篇',  sat:'专项练习', sun:'模考', note:'剑桥16 Test1-2精读，总结定位技巧' },
+    { subject:'✍️ 写作', mon:'Task 1',    tue:'Task 2',    wed:'Task 1',   thu:'Task 2',   fri:'Task 1',   sat:'复盘修改', sun:'休息', note:'Task1图表×3，Task2议论文×2' },
+    { subject:'🗣️ 口语', mon:'跟读10min', tue:'录音练习',  wed:'话题卡',   thu:'跟读10min',fri:'录音练习', sat:'自评总结', sun:'休息', note:'Part 1常见话题跟读，录音自评' },
+    { subject:'📚 词汇', mon:'300词',     tue:'300词',     wed:'300词',    thu:'300词',    fri:'300词',    sat:'错词复习', sun:'复习',  note:'每天300词（奶酪单词雅思核心词）' },
+    { subject:'🎯 模考', mon:'—',         tue:'—',         wed:'—',        thu:'—',        fri:'—',        sat:'—',        sun:'剑桥16 Test3', note:'完整计时模考' },
+  ]},
+  { week: '第2周：专项突破', tasks: [
+    { subject:'🎧 听力', mon:'精听30min',  tue:'专项错题',  wed:'填空题练',  thu:'精听30min', fri:'Section3&4', sat:'专项练习', sun:'模考', note:'针对上周错误类型专项训练' },
+    { subject:'📖 阅读', mon:'精读1篇',   tue:'T/F/NG专项',wed:'限时阅读',  thu:'Matching',  fri:'精读1篇',  sat:'专项练习', sun:'模考', note:'剑桥16 Test3-4，T/F/NG和Matching专项' },
+    { subject:'✍️ 写作', mon:'批改上周',  tue:'Task 2观点类',wed:'Task 1',  thu:'Task 2观点类',fri:'Task 1', sat:'复盘修改', sun:'休息', note:'重点练观点类Task 2' },
+    { subject:'🗣️ 口语', mon:'跟读10min', tue:'Part2话题卡',wed:'录音→文字', thu:'对比范文',  fri:'录音练习', sat:'自评总结', sun:'休息', note:'录音→文字→对比范文' },
+    { subject:'📚 词汇', mon:'300词',     tue:'300词',     wed:'300词',    thu:'300词',    fri:'300词',    sat:'错词复习', sun:'复习',  note:'300词+错题词汇重点复习' },
+    { subject:'🎯 模考', mon:'—',         tue:'—',         wed:'—',        thu:'—',        fri:'—',        sat:'—',        sun:'剑桥17 Test1', note:'完整计时模考' },
+  ]},
+  { week: '第3周：综合提升', tasks: [
+    { subject:'🎧 听力', mon:'精听30min',  tue:'预测性听力',  wed:'Section3专',thu:'精听30min', fri:'Section4专', sat:'专项练习', sun:'模考', note:'Section3&4学术场景专项' },
+    { subject:'📖 阅读', mon:'精读1篇',   tue:'限时40min',  wed:'限时40min', thu:'词汇猜意',  fri:'精读1篇',  sat:'专项练习', sun:'模考', note:'剑桥17 Test1-2，限时40分钟' },
+    { subject:'✍️ 写作', mon:'Task 1',    tue:'Task 2',    wed:'Task 1',   thu:'Task 2',   fri:'逻辑连接词',sat:'复盘修改', sun:'休息', note:'重点提升逻辑连接词' },
+    { subject:'🗣️ 口语', mon:'Part3练习', tue:'PEEL结构',   wed:'录音练习',  thu:'Part3练习', fri:'自评总结', sat:'话题整理', sun:'休息', note:'Part3抽象话题，PEEL结构' },
+    { subject:'📚 词汇', mon:'300词',     tue:'300词+AWL',  wed:'300词+AWL', thu:'300词',    fri:'300词+AWL', sat:'错词复习', sun:'复习',  note:'300词+AWL学术词汇100词' },
+    { subject:'🎯 模考', mon:'—',         tue:'—',         wed:'—',        thu:'—',        fri:'—',        sat:'—',        sun:'剑桥17 Test2', note:'完整计时模考' },
+  ]},
+  { week: '第4周：冲刺模考', tasks: [
+    { subject:'🎧 听力', mon:'完整1套',   tue:'错题复盘',   wed:'完整1套',   thu:'错题复盘',  fri:'完整1套',  sat:'综合复习', sun:'模考', note:'每天1套完整听力，错题当天复盘' },
+    { subject:'📖 阅读', mon:'完整1套',   tue:'错题复盘',   wed:'完整1套',   thu:'错题复盘',  fri:'35min挑战',sat:'综合复习', sun:'模考', note:'限时35分钟挑战' },
+    { subject:'✍️ 写作', mon:'Task 2',    tue:'高分句型',   wed:'Task 2',   thu:'高分句型',  fri:'Task 2',   sat:'模板背诵', sun:'休息', note:'每天1篇Task2，背诵高分句型模板' },
+    { subject:'🗣️ 口语', mon:'Part1全',   tue:'Part2全',   wed:'Part3全',  thu:'难题×3',   fri:'综合练习', sat:'模拟考试', sun:'休息', note:'全部话题过一遍，难题×3次' },
+    { subject:'📚 词汇', mon:'复盘错词',  tue:'复盘错词',   wed:'复盘错词',  thu:'复盘错词',  fri:'复盘错词', sat:'总复习',   sun:'不背新词',note:'复盘前3周错误词汇' },
+    { subject:'🎯 模考', mon:'—',         tue:'—',         wed:'—',        thu:'—',        fri:'—',        sat:'—',        sun:'剑桥18 Test1', note:'完整计时模考' },
+  ]},
+];
+
+function renderPlan() {
+  const el = document.getElementById('plan-weeks');
+  const days = ['周一','周二','周三','周四','周五','周六','周日'];
+  el.innerHTML = PLAN_DATA.map(w => `
+    <div class="card">
+      <div class="card-title">${w.week}</div>
+      <div style="overflow-x:auto">
+      <table class="plan-table">
+        <thead><tr>
+          <th style="width:90px">科目</th>
+          ${days.map(d=>`<th>${d}</th>`).join('')}
+          <th>重点说明</th>
+        </tr></thead>
+        <tbody>
+          ${w.tasks.map(t=>`<tr>
+            <td class="subject-cell">${t.subject}</td>
+            ${days.map(d=>d==='周一'?`<td>${t.mon}</td>`:d==='周二'?`<td>${t.tue}</td>`:d==='周三'?`<td>${t.wed}</td>`:d==='周四'?`<td>${t.thu}</td>`:d==='周五'?`<td>${t.fri}</td>`:d==='周六'?`<td>${t.sat}</td>`:`<td><b>${t.sun}</b></td>`).join('')}
+            <td style="color:var(--muted); font-size:12px">${t.note}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      </div>
+    </div>`).join('');
+}
+
+// ── PAGE 4: Weekly review ────────────────────────────────────────────────────
+function calcOverall() {
+  const l = parseFloat(document.getElementById('score-l').value);
+  const r = parseFloat(document.getElementById('score-r').value);
+  const w = parseFloat(document.getElementById('score-w').value);
+  const s = parseFloat(document.getElementById('score-s').value);
+  const el = document.getElementById('overall-display');
+  if ([l,r,w,s].some(isNaN)) { el.innerHTML=''; return; }
+  const raw = (l+r+w+s)/4;
+  const overall = Math.round(raw*2)/2;
+  const color = overall>=7?'var(--green)':overall>=6.5?'var(--blue)':overall>=6?'var(--warn)':'var(--red)';
+  el.innerHTML = `<div style="font-size:22px; font-weight:800; color:${color}">Overall: ${overall.toFixed(1)}</div>`;
+  generateAdvice(l,r,w,s,overall);
+}
+
+function generateAdvice(l,r,w,s,overall) {
+  const el = document.getElementById('adjustment-advice');
+  const advices = [];
+  if (l < 6)   advices.push({icon:'🎧', title:'听力需要加强', body:'建议增加精听时间，重点练习填空题（Section 1-2）和选择题（Section 3-4）。每天额外加15分钟听写训练。'});
+  if (r < 6.5) advices.push({icon:'📖', title:'阅读需要加强', body:'建议强化定位技巧和T/F/NG判断，减少通读，改为关键词定位法。每篇精读控制在13分钟内。'});
+  if (w < 6)   advices.push({icon:'✍️', title:'写作需要加强', body:'Task 2逻辑结构不稳定，建议背诵PEEL段落结构，每天精写1篇Task 2并对照范文修改。'});
+  if (s < 6)   advices.push({icon:'🗣️', title:'口语需要加强', body:'流利度不足，建议每天录音10分钟，重点练Part 2（话题卡2分钟），用STAR方法组织答案。'});
+  if (overall >= 7) advices.push({icon:'🎉', title:'总分达标！', body:'继续保持现有节奏，可以适当增加模考频率，保持手感。'});
+
+  if (!advices.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🤔</div>填写成绩后自动生成建议</div>';
+    return;
+  }
+  el.innerHTML = advices.map(a => `
+    <div class="alert ${a.icon==='🎉'?'alert-success':'alert-warn'}" style="margin-bottom:10px">
+      <b>${a.icon} ${a.title}</b><br><span style="font-size:13px">${a.body}</span>
+    </div>`).join('');
+}
+
+function saveWeekData() {
+  const week = document.getElementById('sel-week').value;
+  const l = document.getElementById('score-l').value;
+  const r = document.getElementById('score-r').value;
+  const w = document.getElementById('score-w').value;
+  const s = document.getElementById('score-s').value;
+  const rate = document.getElementById('completion-rate').value;
+  const note = document.getElementById('week-note').value;
+  if (!l||!r||!w||!s) { alert('请填写四项成绩'); return; }
+  const weeks = DB.get('weeks');
+  const idx = weeks.findIndex(x=>x.week===week);
+  const entry = { week, l:+l, r:+r, w:+w, s:+s, rate:+rate, note, date: new Date().toLocaleDateString('zh-CN') };
+  if (idx>=0) weeks[idx]=entry; else weeks.push(entry);
+  DB.set('weeks', weeks);
+  alert('✅ 保存成功！');
+  refreshReview();
+}
+
+function loadWeekData() {
+  const week = document.getElementById('sel-week').value;
+  const weeks = DB.get('weeks');
+  const entry = weeks.find(x=>x.week===week);
+  ['l','r','w','s'].forEach(k => document.getElementById(`score-${k}`).value = entry?.[k]||'');
+  document.getElementById('completion-rate').value = entry?.rate||'';
+  document.getElementById('week-note').value = entry?.note||'';
+  if (entry) calcOverall();
+  else { document.getElementById('overall-display').innerHTML=''; document.getElementById('adjustment-advice').innerHTML='<div class="empty-state"><div class="empty-icon">🤔</div>填写成绩后自动生成建议</div>'; }
+}
+
+function refreshReview() {
+  const weeks = DB.get('weeks');
+  const el = document.getElementById('review-summary');
+  if (!weeks.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div>保存周复盘后显示进度</div>';
+    return;
+  }
+  const targets = {l:7, r:7, w:6.5, s:6.5};
+  el.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px">
+    <thead><tr style="background:var(--navy);color:white">
+      <th style="padding:8px 12px">周次</th>
+      <th style="padding:8px 12px">听力 L</th><th style="padding:8px 12px">阅读 R</th>
+      <th style="padding:8px 12px">写作 W</th><th style="padding:8px 12px">口语 S</th>
+      <th style="padding:8px 12px">综合分</th><th style="padding:8px 12px">完成率</th>
+      <th style="padding:8px 12px">状态</th>
+    </tr></thead><tbody>` +
+    [1,2,3,4].map(w => {
+      const e = weeks.find(x=>x.week===String(w));
+      if (!e) return `<tr><td style="padding:8px 12px; color:var(--muted)">第${w}周</td>${'<td style="padding:8px 12px; text-align:center; color:var(--muted)">—</td>'.repeat(7)}</tr>`;
+      const overall = Math.round((e.l+e.r+e.w+e.s)/4*2)/2;
+      const status = overall>=7?'🎉 达标':overall>=6.5?'✅ 良好':overall>=6?'📈 进步中':'⚠️ 需加强';
+      const sc = (v, t) => `<td style="padding:8px 12px; text-align:center; font-weight:700; color:${v>=t?'var(--green)':'var(--red)'}">${v}</td>`;
+      return `<tr style="background:${w%2?'white':'#FAFBFD'}">
+        <td style="padding:8px 12px; font-weight:700">第${w}周</td>
+        ${sc(e.l,targets.l)}${sc(e.r,targets.r)}${sc(e.w,targets.w)}${sc(e.s,targets.s)}
+        <td style="padding:8px 12px; text-align:center; font-weight:800; font-size:15px">${overall}</td>
+        <td style="padding:8px 12px; text-align:center">${e.rate?e.rate+'%':'—'}</td>
+        <td style="padding:8px 12px; text-align:center">${status}</td>
+      </tr>`;
+    }).join('') + '</tbody></table>';
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+renderHistory();
+renderPlan();
+</script>
+</body>
+</html>
